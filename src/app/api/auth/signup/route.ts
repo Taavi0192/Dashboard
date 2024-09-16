@@ -1,6 +1,6 @@
 // app/api/auth/signup/route.ts
 import { hash } from "bcrypt";
-import clientPromise from "../../../../../lib/mongodb";
+import clientPromise from "@/lib/mongodb";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {

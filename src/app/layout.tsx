@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 import Providers from "./providers";
 
 export const metadata = {
-  title: "Your App Title",
+  title: "InsightEd",
   description: "Your App Description",
 };
 
