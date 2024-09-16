@@ -1,10 +1,14 @@
 // app/api/auth/[...nextauth]/route.ts
-import NextAuth, { NextAuthOptions } from "next-auth";
+import NextAuth from "next-auth/next";
+import type { User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "@/lib/mongodb";
 import { compare } from "bcrypt";
-// import { NextResponse } from "next/server";
+import { Session } from "next-auth";
+import { JWT } from "next-auth/jwt";
+import { NextAuthOptions } from "next-auth/";
+// import { ObjectId } from "mongodb";
 
 export const authOptions: NextAuthOptions = {
   adapter: MongoDBAdapter(clientPromise),
@@ -39,13 +43,30 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid credentials");
         }
 
+        // Return user object with 'id' property
         return {
           id: user._id.toString(),
-          email: user.email,
+          name: user.name || null,
+          email: user.email || null,
+          image: null, // or set to user's image if available
         };
       },
     }),
   ],
+  callbacks: {
+    async jwt({ token, user }: { token: JWT; user?: User }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    async session({ session, token }: { session: Session; token: JWT }) {
+      if (session.user && token.id) {
+        session.user.id = token.id as string;
+      }
+      return session;
+    },
+  },
   pages: {
     signIn: "/signin",
     error: "/error",

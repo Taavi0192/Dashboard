@@ -1,16 +1,17 @@
 // app/dashboard/page.tsx
-import { getServerSession } from "next-auth";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
 import { getCoursesByUser } from "@/lib/mongoHelpers";
 import Link from "next/link";
-import { Course } from "@/types/course";
-import { redirect } from "next/navigation";
-import CourseTable from "../dashboard/CourseTable";
+import CourseTable from "./CourseTable";
+import { Session } from "next-auth";
+
+const session: Session | null = await getServerSession(authOptions);
 
 export default async function DashboardPage() {
-  const session = await getServerSession(authOptions);
 
-  if (!session) {
+  if (!session || !session.user || !session.user.id) {
     redirect("/signin");
   }
 

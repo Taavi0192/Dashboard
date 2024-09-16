@@ -64,7 +64,7 @@ export default function CourseTable({ courses }: CourseTableProps) {
         </thead>
         <tbody>
           {sortedCourses.map((course) => (
-            <tr key={course._id}>
+            <tr key={course._id ? course._id.toString() : undefined}>
               <td>{course.title}</td>
               <td>{course.description}</td>
               <td>
@@ -78,7 +78,7 @@ export default function CourseTable({ courses }: CourseTableProps) {
               </td>
               <td>
                 {/* Add edit functionality if needed */}
-                <button onClick={() => handleDelete(course._id!)}>Delete</button>
+                <button onClick={() => handleDelete(course._id!.toString())}>Delete</button>
               </td>
             </tr>
           ))}

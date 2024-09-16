@@ -20,7 +20,7 @@ interface Chatbot {
 
 export interface Course {
   _id?: ObjectId;
-  userId: string;
+  userId: string; // Changed to string
   title: string;
   description: string;
   sections: {
@@ -34,3 +34,4 @@ export interface Course {
   createdAt: Date;
   updatedAt: Date;
 }
+

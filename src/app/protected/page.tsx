@@ -1,11 +1,13 @@
 // app/protected/page.tsx
-import { getServerSession } from "next-auth";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
+import { Session } from "next-auth";
+
+const session: Session | null = await getServerSession(authOptions);
 
 export default async function ProtectedPage() {
-  const session = await getServerSession(authOptions);
-
+  
   if (!session) {
     redirect("/signin");
   }

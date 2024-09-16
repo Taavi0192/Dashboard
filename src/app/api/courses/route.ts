@@ -1,13 +1,16 @@
 // app/api/courses/route.ts
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { createCourse } from "@/lib/mongoHelpers";
+import type { Session } from "next-auth";
+import { getCoursesByUser } from "@/lib/mongoHelpers";
+
+const session: Session | null = await getServerSession(authOptions);
 
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
 
-  if (!session) {
+  if (!session || !session.user || !session.user.id) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
@@ -27,18 +30,19 @@ export async function POST(req: Request) {
     totalUnits,
     unitsCovered: 0,
     sections: {
-      lessonPlan: {}, // Initialize as needed
+      lessonPlan: {},
       milestones: {},
       assessments: {},
       chatbot: {},
     },
+    createdAt: new Date(),
+    updatedAt: new Date(),
   });
 
   return NextResponse.json(course, { status: 201 });
 }
-export async function GET(req: Request) {
-  const session = await getServerSession(authOptions);
 
+export async function GET() {
   if (!session) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
