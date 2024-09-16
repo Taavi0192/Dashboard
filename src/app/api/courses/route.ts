@@ -6,9 +6,9 @@ import { createCourse } from "@/lib/mongoHelpers";
 import type { Session } from "next-auth";
 import { getCoursesByUser } from "@/lib/mongoHelpers";
 
-const session: Session | null = await getServerSession(authOptions);
-
 export async function POST(req: Request) {
+
+  const session: Session | null = await getServerSession(authOptions);
 
   if (!session || !session.user || !session.user.id) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
