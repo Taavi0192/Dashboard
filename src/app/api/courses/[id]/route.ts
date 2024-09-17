@@ -6,12 +6,14 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import clientPromise from "@/lib/mongodb";
 import { Session } from "next-auth";
 
-const session: Session | null = await getServerSession(authOptions);
+
 
 export async function DELETE(
   req: Request,
   { params }: { params: { id: string } }
 ) {
+  const session: Session | null = await getServerSession(authOptions);
+
   if (!session) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
