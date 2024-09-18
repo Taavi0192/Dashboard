@@ -24,6 +24,7 @@ export default function AddCoursePage() {
 
     if (res.status === 201) {
       router.push("/dashboard");
+      router.refresh();
     } else {
       const data = await res.json();
       setErrorMsg(data.message || "Something went wrong.");
