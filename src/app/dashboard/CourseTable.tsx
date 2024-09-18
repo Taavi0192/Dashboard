@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { Course } from "@/types/course";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface CourseTableProps {
   courses: Course[];
@@ -65,7 +66,7 @@ export default function CourseTable({ courses }: CourseTableProps) {
         <tbody>
           {sortedCourses.map((course) => (
             <tr key={course._id ? course._id.toString() : undefined}>
-              <td>{course.title}</td>
+              <td><Link href ={`/courses/${course._id?.toString()}`}>{course.title}</Link></td>
               <td>{course.description}</td>
               <td>
                 <progress
