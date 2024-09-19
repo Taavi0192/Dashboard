@@ -33,6 +33,14 @@ export default function CourseTable({ courses }: CourseTableProps) {
     }
   };
 
+  const calculateProgress = (
+    milestonesCompleted: number,
+    totalMilestones: number
+  ) => {
+    if (totalMilestones === 0) return 0;
+    return (milestonesCompleted / totalMilestones) * 100;
+  };
+
   return (
     <div>
       <h2>Courses</h2>
@@ -64,25 +72,34 @@ export default function CourseTable({ courses }: CourseTableProps) {
           </tr>
         </thead>
         <tbody>
-          {sortedCourses.map((course) => (
-            <tr key={course._id ? course._id.toString() : undefined}>
-              <td><Link href ={`/courses/${course._id?.toString()}`}>{course.title}</Link></td>
-              <td>{course.description}</td>
-              <td>
-                <progress
-                  value={course.unitsCovered}
-                  max={course.totalUnits}
-                ></progress>
-                {` ${((course.unitsCovered / course.totalUnits) * 100).toFixed(
-                  2
-                )}%`}
-              </td>
-              <td>
-                {/* Add edit functionality if needed */}
-                <button onClick={() => handleDelete(course._id!.toString())}>Delete</button>
-              </td>
-            </tr>
-          ))}
+          {sortedCourses.map((course) => {
+            const totalMilestones = 4;
+            const milestonesCompleted =
+              course.milestoneProgress?.filter((p) => p === 100).length || 0;
+            const progress = calculateProgress(
+              milestonesCompleted,
+              totalMilestones
+            );
+
+            return (
+              <tr key={course._id ? course._id.toString() : undefined}>
+                <td>
+                  <Link href={`/courses/${course._id?.toString()}`}>
+                    {course.title}
+                  </Link>
+                </td>
+                <td>{course.description}</td>
+                <td>{course.totalUnits}</td>
+                <td>{progress}%</td>
+                <td>
+                  {/* Add edit functionality if needed */}
+                  <button onClick={() => handleDelete(course._id!.toString())}>
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

@@ -13,7 +13,7 @@ export default function Tabs({ activeTab, setActiveTab }: TabsProps) {
         onClick={() => setActiveTab("lessonPlan")}
         className={activeTab === "lessonPlan" ? "active" : ""}
       >
-        Lesson Plan Generator
+        Lesson Plan
       </button>
       <button
         onClick={() => setActiveTab("milestones")}

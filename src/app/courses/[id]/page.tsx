@@ -7,6 +7,9 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import Tabs from "@/app/components/Tabs";
 import { Course } from "@/types/course";
+import LessonPlanTab from "@/app/components/LessonPlanTab";
+import AssessmentTab from "@/app/components/AssessmentTab";
+import MilestonesTab from "@/app/components/MilestonesTab";
 
 interface CoursePageProps {
   params: {
@@ -19,7 +22,15 @@ export default function CoursePage({ params }: CoursePageProps) {
   const router = useRouter();
   const { data: session } = useSession();
   const [course, setCourse] = useState<Course | null>(null);
-  const [activeTab, setActiveTab] = useState("lessonPlan");
+  const [activeTab, setActiveTab] = useState("milestones");
+
+  const [milestones, setMilestones] = useState([
+    "Milestone 1",
+    "Milestone 2",
+    "Milestone 3",
+    "Milestone 4",
+  ]);
+  const [milestoneProgress, setMilestoneProgress] = useState<number[]>([0,0,0,0]);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -46,6 +57,12 @@ export default function CoursePage({ params }: CoursePageProps) {
     fetchCourse();
   }, [id, router, session]);
 
+  const handleMilestoneComplete = (index : number) => {
+    const newProgress = [...milestoneProgress];
+    newProgress[index] = 100;
+    setMilestoneProgress(newProgress);
+  };
+
   if (!course) {
     return <div>Loading...</div>;
   }
@@ -55,9 +72,13 @@ export default function CoursePage({ params }: CoursePageProps) {
       <h1>{course.title}</h1>
       <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
       <div>
-        {activeTab === "lessonPlan" && <div>Lesson Plan Generator Content</div>}
-        {activeTab === "milestones" && <div>Milestones Content</div>}
-        {activeTab === "assessments" && <div>Assessments Content</div>}
+        {activeTab === "lessonPlan" && <LessonPlanTab />}
+        {activeTab === "milestones" && (<MilestonesTab
+        milestones={milestones}
+        milestoneProgress={milestoneProgress}
+        onMilestoneComplete={handleMilestoneComplete}
+        />)}
+        {activeTab === "assessments" && <AssessmentTab />}
         {activeTab === "chatbot" && <div>Chatbot Content</div>}
       </div>
     </div>
