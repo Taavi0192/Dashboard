@@ -21,8 +21,13 @@ export default async function DashboardPage() {
     <div>
       <h1>Dashboard</h1>
       <p>Total Courses: {courses.length}</p>
+      {courses.length > 0? (
+        <CourseTable courses={courses} />
+      ) : (
+        <p>You have no courses. Start by creating one!</p>
+      )
+      }
       <Link href="/courses/add">Add New Course</Link>
-      <CourseTable courses={courses} />
     </div>
   );
 }

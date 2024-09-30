@@ -33,12 +33,14 @@ export default function CourseTable({ courses }: CourseTableProps) {
     }
   };
 
-  const calculateProgress = (
-    milestonesCompleted: number,
-    totalMilestones: number
-  ) => {
+  
+    const calculateProgress = (milestones: Course["sections"]["milestones"]) => {
+      const totalMilestones = Object.keys(milestones).length;
+      const completedMilestones = Object.values(milestones).filter(milestone => milestone.status).length;
+  
+  
     if (totalMilestones === 0) return 0;
-    return (milestonesCompleted / totalMilestones) * 100;
+    return (completedMilestones / totalMilestones) * 100;
   };
 
   return (
@@ -73,13 +75,7 @@ export default function CourseTable({ courses }: CourseTableProps) {
         </thead>
         <tbody>
           {sortedCourses.map((course) => {
-            const totalMilestones = 4;
-            const milestonesCompleted =
-              course.milestoneProgress?.filter((p) => p === 100).length || 0;
-            const progress = calculateProgress(
-              milestonesCompleted,
-              totalMilestones
-            );
+            const progress = calculateProgress(course.sections.milestones);
 
             return (
               <tr key={course._id ? course._id.toString() : undefined}>
@@ -89,11 +85,14 @@ export default function CourseTable({ courses }: CourseTableProps) {
                   </Link>
                 </td>
                 <td>{course.description}</td>
-                <td>{course.totalUnits}</td>
                 <td>{progress}%</td>
                 <td>
                   {/* Add edit functionality if needed */}
-                  <button onClick={() => handleDelete(course._id!.toString())}>
+                  <button onClick={() => {
+                    if (window.confirm('Are you sure you want to delete course?')) {
+                      handleDelete(course._id!.toString() || '');
+                    }
+                  }}>
                     Delete
                   </button>
                 </td>

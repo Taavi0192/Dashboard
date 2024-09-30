@@ -24,14 +24,6 @@ export default function CoursePage({ params }: CoursePageProps) {
   const [course, setCourse] = useState<Course | null>(null);
   const [activeTab, setActiveTab] = useState("milestones");
 
-  const [milestones, setMilestones] = useState([
-    "Milestone 1",
-    "Milestone 2",
-    "Milestone 3",
-    "Milestone 4",
-  ]);
-  const [milestoneProgress, setMilestoneProgress] = useState<number[]>([0,0,0,0]);
-
   useEffect(() => {
     if (status === "loading") return;
 
@@ -57,10 +49,41 @@ export default function CoursePage({ params }: CoursePageProps) {
     fetchCourse();
   }, [id, router, session]);
 
-  const handleMilestoneComplete = (index : number) => {
-    const newProgress = [...milestoneProgress];
-    newProgress[index] = 100;
-    setMilestoneProgress(newProgress);
+  const handleMilestoneComplete = async (milestoneKey: string) => {
+    if (!course) return;
+
+    try {
+      const updatedMilestones = {
+        ...course.sections.milestones,
+        [milestoneKey]: {
+          ...course.sections.milestones[milestoneKey],
+          status: true, // Mark milestone as complete
+        },
+      };
+
+      // Update the milestone status on the server
+      const response = await fetch(`/api/courses/${course._id}/milestones/complete`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ milestoneKey }),
+      });
+
+      if (response.ok) {
+        setCourse({
+          ...course,
+          sections: {
+            ...course.sections,
+            milestones: updatedMilestones,
+          },
+        });
+      } else {
+        console.error("Failed to update milestone status");
+      }
+    } catch (error) {
+      console.error("Error updating milestone:", error);
+    }
   };
 
   if (!course) {
@@ -73,11 +96,12 @@ export default function CoursePage({ params }: CoursePageProps) {
       <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
       <div>
         {activeTab === "lessonPlan" && <LessonPlanTab />}
-        {activeTab === "milestones" && (<MilestonesTab
-        milestones={milestones}
-        milestoneProgress={milestoneProgress}
-        onMilestoneComplete={handleMilestoneComplete}
-        />)}
+        {activeTab === "milestones" && (
+          <MilestonesTab
+            milestones={course.sections.milestones}
+            onMilestoneComplete={handleMilestoneComplete}
+          />
+        )}
         {activeTab === "assessments" && <AssessmentTab />}
         {activeTab === "chatbot" && <div>Chatbot Content</div>}
       </div>

@@ -53,6 +53,10 @@ export default function SignInPage() {
         </label>
         <br />
         <button type="submit">Sign In</button>
+        <br />
+        {/* <p>
+          Forgot your password? <a href="/password-reset">Reset it here</a>
+        </p> */}
       </form>
     </div>
   );

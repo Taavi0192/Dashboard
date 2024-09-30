@@ -6,8 +6,27 @@ interface LessonPlan {
   // Define fields for lesson plans
 }
 
+interface Unit {
+  title: string;
+  description: string;
+  completed?: boolean;
+}
+
+interface Milestone {
+  unitsIncluded: {
+    Unit1: Unit;
+    Unit2: Unit;
+    Unit3: Unit;
+  };
+  status: boolean;
+}
+
 interface Milestones {
-  // Define fields for milestones
+  Milestone1: Milestone;
+  Milestone2: Milestone;
+  Milestone3: Milestone;
+  Milestone4: Milestone;
+  [milestoneKey: string]: Milestone;
 }
 
 interface Assessments {
@@ -20,7 +39,7 @@ interface Chatbot {
 
 export interface Course {
   _id?: ObjectId;
-  userId: string; // Changed to string
+  userId: string;
   title: string;
   description: string;
   sections: {

@@ -1,40 +1,82 @@
-// Lesson Plan Generator Tab Content (React component)
-import { useState } from "react";
+// app/components/LessonPlanTab.tsx
+'use client';
+
+import { useState } from 'react';
 
 export default function LessonPlanTab() {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
-  const [difficulty, setDifficulty] = useState("Beginner");
+  const [difficulty, setDifficulty] = useState('Beginner');
   const [units, setUnits] = useState(4);
-  const [milestones, setMilestones] = useState(["Milestone 1", "Milestone 2", "Milestone 3", "Milestone 4"]);
-  const [milestoneProgress, setMilestoneProgress] = useState<number[]>([0, 0, 0, 0]);
+  const [lessonPlan, setLessonPlan] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handlePdfUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null;
     setPdfFile(file);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Process the uploaded PDF and lesson plan criteria
-    console.log("PDF:", pdfFile);
-    console.log("Difficulty:", difficulty);
-    console.log("Units:", units);
-    // Divide units into milestones (you can implement real logic later)
-    setMilestones(generateMilestones(units));
+    setError('');
+    setLessonPlan('');
+  
+    if (!pdfFile) {
+      setError('Please upload a PDF file.');
+      return;
+    }
+  
+    setLoading(true);
+  
+    try {
+      const formData = new FormData();
+      formData.append('file', pdfFile);
+      formData.append('units', units.toString());
+      formData.append('difficulty', difficulty);
+  
+      const response = await fetch('/api/lesson-plan', {
+        method: 'POST',
+        body: formData,
+      });
+  
+      const contentType = response.headers.get('content-type');
+      let data;
+  
+      if (contentType && contentType.indexOf('application/json') !== -1) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        console.error('Unexpected response format:', text);
+        setError('Unexpected response from server.');
+        return;
+      }
+  
+      if (!response.ok) {
+        setError(data.message || 'Failed to generate lesson plan.');
+      } else {
+        setLessonPlan(data.lessonPlan);
+      }
+    } catch (error) {
+      console.error('Error generating lesson plan:', error);
+      setError('An error occurred while generating the lesson plan.');
+    } finally {
+      setLoading(false);
+    }
   };
-
+  
   const handleDownload = () => {
-    // Logic for downloading lesson plan (mock link for now)
-    const link = document.createElement("a");
-    link.href = "#";
-    link.download = "lesson-plan.pdf";
-    link.click();
-  };
+    if (!lessonPlan) {
+      console.error('No lesson plan to download');
+      return;
+    }
 
-  const generateMilestones = (units: number) => {
-    const milestoneCount = 4; // Fixed number of milestones
-    const unitsPerMilestone = Math.ceil(units / milestoneCount);
-    return Array.from({ length: milestoneCount }, (_, i) => `Milestone ${i + 1} (Units: ${i * unitsPerMilestone + 1} - ${(i + 1) * unitsPerMilestone})`);
+    const element = document.createElement('a');
+    const file = new Blob([lessonPlan], { type: 'text/plain' });
+    element.href = URL.createObjectURL(file);
+    element.download = 'lesson-plan.txt';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
   };
 
   return (
@@ -63,21 +105,20 @@ export default function LessonPlanTab() {
             onChange={(e) => setUnits(parseInt(e.target.value, 10))}
           />
         </div>
-        <button type="submit">Generate Lesson Plan</button>
+        <button type="submit" disabled={loading}>
+          {loading ? 'Generating...' : 'Generate Lesson Plan'}
+        </button>
       </form>
 
-      <div>
-        <h3>Milestones</h3>
-        <ul>
-          {milestones.map((milestone, index) => (
-            <li key={index}>
-              {milestone} - Progress: {milestoneProgress[index]}%
-            </li>
-          ))}
-        </ul>
-      </div>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      <button onClick={handleDownload}>Download Lesson Plan</button>
+      {lessonPlan && (
+        <div>
+          <h3>Generated Lesson Plan</h3>
+          <pre>{lessonPlan}</pre>
+          <button onClick={handleDownload}>Download Lesson Plan</button>
+        </div>
+      )}
     </div>
   );
 }

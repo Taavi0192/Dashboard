@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import Providers from "./providers";
 import { Session } from "next-auth";
+import Navbar from "./components/Navbar";
 
 export const metadata = {
   title: "InsightEd",
@@ -21,7 +22,10 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   return (
     <html lang="en">
       <body>
-        <Providers session={session}>{children}</Providers>
+        <Providers session={session}>
+          <Navbar />
+          {children}
+          </Providers>
       </body>
     </html>
   );
