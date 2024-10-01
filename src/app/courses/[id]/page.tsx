@@ -1,5 +1,3 @@
-// app/courses/[id]/page.tsx
-
 "use client";
 
 import { useRouter } from "next/navigation";
@@ -20,7 +18,7 @@ interface CoursePageProps {
 export default function CoursePage({ params }: CoursePageProps) {
   const { id } = params;
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [course, setCourse] = useState<Course | null>(null);
   const [activeTab, setActiveTab] = useState("milestones");
 
@@ -47,7 +45,7 @@ export default function CoursePage({ params }: CoursePageProps) {
     };
 
     fetchCourse();
-  }, [id, router, session]);
+  }, [id, router, session, status]);
 
   const handleMilestoneComplete = async (milestoneKey: string) => {
     if (!course) return;
@@ -62,13 +60,16 @@ export default function CoursePage({ params }: CoursePageProps) {
       };
 
       // Update the milestone status on the server
-      const response = await fetch(`/api/courses/${course._id}/milestones/complete`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ milestoneKey }),
-      });
+      const response = await fetch(
+        `/api/courses/${course._id}/milestones/complete`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ milestoneKey }),
+        }
+      );
 
       if (response.ok) {
         setCourse({
@@ -87,14 +88,18 @@ export default function CoursePage({ params }: CoursePageProps) {
   };
 
   if (!course) {
-    return <div>Loading...</div>;
+    return (
+      <div style={styles.loadingContainer}>
+        <p style={styles.loadingText}>Loading...</p>
+      </div>
+    );
   }
 
   return (
-    <div>
-      <h1>{course.title}</h1>
+    <div style={styles.container}>
+      <h1 style={styles.title}>{course.title}</h1>
       <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
-      <div>
+      <div style={styles.content}>
         {activeTab === "lessonPlan" && <LessonPlanTab />}
         {activeTab === "milestones" && (
           <MilestonesTab
@@ -108,3 +113,33 @@ export default function CoursePage({ params }: CoursePageProps) {
     </div>
   );
 }
+
+const styles = {
+  container: {
+    maxWidth: "800px",
+    margin: "50px auto",
+    padding: "2rem",
+    backgroundColor: "#f9f9f9",
+    borderRadius: "8px",
+    fontFamily: "Arial, sans-serif",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+  },
+  title: {
+    textAlign: "center" as const,
+    marginBottom: "1.5rem",
+    color: "#333",
+  },
+  content: {
+    marginTop: "2rem",
+  },
+  loadingContainer: {
+    display: "flex",
+    justifyContent: "center" as const,
+    alignItems: "center" as const,
+    height: "100vh",
+  },
+  loadingText: {
+    fontSize: "1.5rem",
+    color: "#555",
+  },
+};
