@@ -10,6 +10,7 @@ import { JWT } from "next-auth/jwt";
 import { NextAuthOptions } from "next-auth/";
 // import { ObjectId } from "mongodb";
 
+
 export const authOptions: NextAuthOptions = {
   adapter: MongoDBAdapter(clientPromise),
   providers: [

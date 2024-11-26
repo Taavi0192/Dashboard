@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import Heatmap from 'react-calendar-heatmap';
 import 'react-calendar-heatmap/dist/styles.css';
+import '@/app/StudyHeatMap.css';
 
 interface HeatmapValue {
   date: string;
@@ -56,18 +57,17 @@ export default function StudyHeatmap({ habitId, period }: StudyHeatmapProps) {
         endDate={new Date()}
         values={data}
         classForValue={(value) => {
-          if (!value) {
+          if (!value || !value.count) {
             return 'color-empty';
           }
-          // Define color scale based on value.count
           if (value.count >= 120) {
-            return 'color-scale-4';
+            return 'color-github-4';
           } else if (value.count >= 60) {
-            return 'color-scale-3';
+            return 'color-github-3';
           } else if (value.count >= 30) {
-            return 'color-scale-2';
+            return 'color-github-2';
           } else {
-            return 'color-scale-1';
+            return 'color-github-1';
           }
         }}
       />

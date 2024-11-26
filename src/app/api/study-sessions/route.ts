@@ -5,7 +5,7 @@ import dbConnect from '@/lib/dbConnect';
 import { StudySession } from '@../../models/StudySession';
 import { getServerSession } from 'next-auth/next';
 // import { getSession } from 'next-auth/react';
-import mongoose from 'mongoose';
+// import mongoose from 'mongoose';
 import { authOptions } from '../auth/[...nextauth]/route';
 
 export async function POST(req: Request) {
